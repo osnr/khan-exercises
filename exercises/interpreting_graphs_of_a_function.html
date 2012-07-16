@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html data-require="math graphie interactive expressions polynomials calculus">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Graphing parabolas 1</title>
+    <script src="../khan-exercise.js"></script>
+</head>
+<body>
+<div class="exercise">
+    <div class="vars">
+        <var id="X_SHIFT">randRange(-3, 3)</var>
+        <var id="Y_SHIFT">randRange(-3, 3)</var>
+
+        <var id="FUNC">(function() {
+            var fIdx = randRangeWeighted(0, 1, 0, 0.9);
+            return ([
+                function(variable) {
+                    // polynomial
+                    var minDegree = randRange(0, 2),
+                    maxDegree = randRangeWeighted(minDegree, 4, 3, 0.4);
+
+                    var coefs = [],
+                    allZero = true;
+
+                    while (allZero) {
+                        for (var i = maxDegree; i >= minDegree; i--) {
+                            coefs[i] = randRange(-5, 5) / 6;
+                            allZero = allZero && coefs[i] === 0;
+                        }
+                    }
+
+                    return new PowerRule(minDegree, maxDegree, coefs, variable);
+                },
+                function(variable) {
+                    // trig function
+                    var idx = randRange(0, 1);
+
+                    return {
+                        f: [trigFuncs[idx], variable],
+                        ddxF: [ddxTrigFuncs[idx], variable]
+                    };
+                }
+            ][fIdx])(["+", "x", -X_SHIFT]);
+        })()</var>
+
+        <var id="FNX">function(x) { return expr(["+", exprSubstitute(FUNC.f, "x", x), Y_SHIFT], true); }</var>
+        <var id="DDX">function(x) { return (FNX(x + pow(2, -10)) - FNX(x)) / pow(2, -10); }</var>
+    </div>
+
+    <div class="problems">
+        <div id="intervals">
+            <div class="vars" data-append>
+                <var id="TYPE">randFromArray(["increasing", "decreasing", "positive", "negative"])</var>
+            </div>
+            <p class="question">Highlight an interval on the graph below where the function is <var>TYPE</var>.</p>
+
+            <div class="graphie" id="grid">
+                graphInit({
+                    range: 11,
+                    scale: 20,
+                    axisArrows: "&lt;-&gt;",
+                    tickStep: 1,
+                    labelStep: 0,
+                });
+
+                plot(FNX, [-11, 11]);
+
+                addMouseLayer();
+
+                graph.leftBound = addMovablePoint({ coord: [-1, FNX(-1)] });
+                graph.rightBound = addMovablePoint({ coord: [1, FNX(1)] });
+
+                var intervalStyle = { stroke: ORANGE, strokeWidth: 4 };
+                graph.interval = plot(FNX, [-1, 1], intervalStyle);
+
+                var onMove = function(x, y) {
+                    var newY = FNX(x);
+
+                    if (newY &gt;= -11 && newY &lt;= 11) {
+                        graph.interval.remove();
+                        graph.interval = plot(FNX, [graph.leftBound.coord[0], graph.rightBound.coord[0]],
+                            intervalStyle);
+                        return [x, FNX(x)];
+                    } else {
+                        return false;
+                    }
+                };
+
+                graph.leftBound.onMove = function(x, y) {
+                    return onMove(min(x, graph.rightBound.coord[0] - 0.1), y);
+                }
+                graph.rightBound.onMove = function(x, y) {
+                    return onMove(max(x, graph.leftBound.coord[0] + 0.1), y);
+                }
+            </div>
+
+            <div class="solution" data-type="custom">
+                <div class="instruction">
+                    Drag the two boundary points to highlight an interval between them.
+                </div>
+                <div class="guess">[graph.leftBound.coord[0], graph.rightBound.coord[0]]</div>
+                <div class="validator-function">
+                    return _.all(graph.interval.graphiePath, ({
+                        increasing: function(point) {
+                            return (DDX(point[0]) > 0);
+                        },
+
+                        decreasing: function(point) {
+                            return (DDX(point[0]) < 0);
+                        },
+
+                        positive: function(point) {
+                            return (point[1] > 0);
+                        },
+
+                        negative: function(point) {
+                            return (point[1] < 0);
+                        }
+                    })[TYPE]);
+                </div>
+                <div class="show-guess">
+                </div>
+            </div>
+        </div>
+
+        <div id="points">
+            <div class="vars">
+                <var id="TYPE">randFromArray(["x-intercepts", "y-intercepts", "maximum", "minimum", "relative maximum", "relative minimum"])</var>
+            </div>
+            <p class="question">
+                Highlight the <var>TYPE</var> of the function graphed below.
+            </p>
+            <div class="graphie" id="grid">
+                graphInit({
+                    range: 11,
+                    scale: 20,
+                    axisArrows: "&lt;-&gt;",
+                    tickStep: 1,
+                    labelStep: 0,
+                });
+
+                plot(FNX, [-11, 11]);
+
+                addMouseLayer();
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -405,6 +405,18 @@ $.extend(KhanUtil, {
             return Math.sqrt(KhanUtil.expr(arg, true));
         },
 
+        "sin": function(arg) {
+            return Math.sin(KhanUtil.expr(arg, true));
+        },
+
+        "cos": function(arg) {
+            return Math.cos(KhanUtil.expr(arg, true));
+        },
+
+        "tan": function(arg) {
+            return Math.tan(KhanUtil.expr(arg, true));
+        },
+
         "+-": function() {
             return Number.NaN;
         }
@@ -463,6 +475,18 @@ $.extend(KhanUtil, {
         ret.unshift(expr[0]);
 
         return ret;
+    },
+
+    exprSubstitute: function(expr, variable, value) {
+        if (expr === variable) {
+            return value;
+        } else if (typeof expr === "object") {
+            return $.map(expr, function(el, i) {
+                return [KhanUtil.exprSubstitute(el, variable, value)];
+            });
+        } else {
+            return expr;
+        }
     }
 });
 

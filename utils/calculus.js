@@ -202,7 +202,7 @@ $.extend(KhanUtil, {
             // power rule, polynomials
             var minDegree = KhanUtil.randRange(-2, 2);
             var maxDegree = KhanUtil.randRange(2, 4);
-            return KhanUtil.PowerRule(minDegree, maxDegree, KhanUtil.randCoefs(minDegree, maxDegree), variable);
+            return new KhanUtil.PowerRule(minDegree, maxDegree, KhanUtil.randCoefs(minDegree, maxDegree), variable);
         },
         function(variable) {
             // random trig func
@@ -232,7 +232,7 @@ $.extend(KhanUtil, {
 
         function(variable) {
             // basic x^power, simplified version of polynomials in [0]
-            // kept KhanUtil around mainly for easy wrong answer generation
+            // kept this around mainly for easy wrong answer generation
             var maxDegree = KhanUtil.randRange(2, 6);
             var minDegree = maxDegree;
 
